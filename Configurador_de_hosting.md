@@ -384,3 +384,156 @@ if (file_exists($compose_path)) {
 }
 ?>
 ```
+
+## `modificar.php`
+
+```php
+
+<?php
+session_start();
+if (!isset($_SESSION['usuari_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$conn = new mysqli("localhost", "pau", "Hola1234!", "projecte");
+if ($conn->connect_error) {
+    die("Error de connexió: " . $conn->connect_error);
+}
+
+$usuari_id = $_SESSION['usuari_id'];
+$servei_id = $_GET['servei_id'] ?? '';
+
+$stmt = $conn->prepare("SELECT * FROM serveis WHERE servei_id = ? AND usuari_id = ?");
+$stmt->bind_param("si", $servei_id, $usuari_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$servei = $result->fetch_assoc();
+$stmt->close();
+
+if (!$servei) {
+    die("El servei no existeix.");
+}
+?>
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Modificar Servei</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 15px;
+      display: block;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+    }
+    .checkbox {
+      margin-top: 15px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      background-color: #3b82f6;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2563eb;
+    }
+    .back {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    .back a {
+      text-decoration: none;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Modificar Servei: <?= htmlspecialchars($servei['nom_servei']) ?></h2>
+    <form action="guardar_canvis.php" method="POST">
+      <input type="hidden" name="servei_id" value="<?= htmlspecialchars($servei_id) ?>">
+      <input type="hidden" name="nom_servei" value="<?= htmlspecialchars($servei['nom_servei']) ?>">
+      <label>Plataforma:</label>
+      <select name="plataforma" required>
+        <option value="wordpress" <?= $servei['plataforma'] === 'wordpress' ? 'selected' : '' ?>>WordPress</option>
+        <option value="nextcloud" <?= $servei['plataforma'] === 'nextcloud' ? 'selected' : '' ?>>Nextcloud</option>
+      </select>
+      <label>Versió MySQL:</label>
+      <select name="versio_mysql" required>
+        <option value="5.7" <?= $servei['versio_mysql'] === '5.7' ? 'selected' : '' ?>>MySQL 5.7</option>
+        <option value="8.0" <?= $servei['versio_mysql'] === '8.0' ? 'selected' : '' ?>>MySQL 8.0</option>
+      </select>
+      <label>vCPU:</label>
+      <select name="vcpu" required>
+        <option value="1" <?= $servei['vcpu'] == 1 ? 'selected' : '' ?>>1 vCPU</option>
+        <option value="2" <?= $servei['vcpu'] == 2 ? 'selected' : '' ?>>2 vCPU</option>
+        <option value="4" <?= $servei['vcpu'] == 4 ? 'selected' : '' ?>>4 vCPU</option>
+      </select>
+      <label>RAM (GiB):</label>
+      <select name="ram" required>
+        <option value="1" <?= $servei['ram'] == 1 ? 'selected' : '' ?>>1 GiB</option>
+        <option value="2" <?= $servei['ram'] == 2 ? 'selected' : '' ?>>2 GiB</option>
+        <option value="4" <?= $servei['ram'] == 4 ? 'selected' : '' ?>>4 GiB</option>
+      </select>
+      <label>SSD (GiB):</label>
+      <select name="ssd" required>
+        <option value="20" <?= $servei['ssd'] == 20 ? 'selected' : '' ?>>20 GiB</option>
+        <option value="50" <?= $servei['ssd'] == 50 ? 'selected' : '' ?>>50 GiB</option>
+        <option value="100" <?= $servei['ssd'] == 100 ? 'selected' : '' ?>>100 GiB</option>
+      </select>
+      <label>Amplada de banda:</label>
+      <select name="xarxa" required>
+        <option value="100" <?= $servei['xarxa'] == 100 ? 'selected' : '' ?>>100 Mbps</option>
+        <option value="500" <?= $servei['xarxa'] == 500 ? 'selected' : '' ?>>500 Mbps</option>
+        <option value="1000" <?= $servei['xarxa'] == 1000 ? 'selected' : '' ?>>1 Gbps</option>
+      </select>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" name="backup_diari" value="1" <?= $servei['backup_diari'] ? 'checked' : '' ?>>
+          Backup diari
+        </label>
+      </div>
+      <button type="submit">Desar Canvis</button>
+    </form>
+    <div class="back">
+      <a href="panell.php">← Tornar al panell</a>
+    </div>
+  </div>
+</body>
+</html>
+
+```
