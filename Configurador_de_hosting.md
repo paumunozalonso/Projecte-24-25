@@ -537,3 +537,102 @@ if (!$servei) {
 </html>
 
 ```
+
+## `packs.php`
+
+```php
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Packs Predefinits</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f8fb;
+      padding: 40px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    .packs-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    .pack {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 250px;
+    }
+    .pack h3 {
+      margin-top: 0;
+    }
+    .basic { border-top: 5px solid #22c55e; }
+    .mitja { border-top: 5px solid #eab308; }
+    .pro { border-top: 5px solid #ef4444; }
+    .pack ul {
+      text-align: left;
+      padding-left: 20px;
+    }
+    .pack a {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #3b82f6;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+    .pack a:hover {
+      background-color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tria un Pack Predefinit</h1>
+  <div class="packs-container">
+    <div class="pack basic">
+      <h3>Pack Bàsic</h3>
+      <ul>
+        <li>1 vCPU</li>
+        <li>1 GiB RAM</li>
+        <li>20 GiB SSD</li>
+        <li>100 Mbps</li>
+        <li>Sense Backup</li>
+      </ul>
+      <a href="crear_servei_pack.php?pack=basic">Seleccionar</a>
+    </div>
+
+    <div class="pack mitja">
+      <h3>Pack Mitjà</h3>
+      <ul>
+        <li>2 vCPU</li>
+        <li>2 GiB RAM</li>
+        <li>50 GiB SSD</li>
+        <li>500 Mbps</li>
+        <li>Amb Backup</li>
+      </ul>
+      <a href="crear_servei_pack.php?pack=mitja">Seleccionar</a>
+    </div>
+
+    <div class="pack pro">
+      <h3>Pack Pro</h3>
+      <ul>
+        <li>4 vCPU</li>
+        <li>4 GiB RAM</li>
+        <li>100 GiB SSD</li>
+        <li>1 Gbps</li>
+        <li>Amb Backup</li>
+      </ul>
+      <a href="crear_servei_pack.php?pack=pro">Seleccionar</a>
+    </div>
+  </div>
+</body>
+</html>
+
+```
