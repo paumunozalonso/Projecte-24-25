@@ -83,3 +83,20 @@ systemctl enable zabbix-server zabbix-agent apache2
 ---
 
 
+## Demos Zabbix
+
+A continuació es mostren alguns vídeos que mostren el funcionament i les funcionalitats configurades amb Zabbix:
+
+### Funcionament correcte del sistema
+[Enllaç al vídeo](https://drive.google.com/file/d/1Yr6WRf7TLc8tqSaOMcnGgSdwqRbC_atV/view?usp=sharing)
+
+### Informe generat per Zabbix
+[Enllaç al vídeo](https://drive.google.com/file/d/1uWL6xegRA5jkvzS_l1tSv0KJ0ty1Po9N/view?usp=sharing)
+
+### Notificacions sobre incidències
+
+- [Notificació 1](https://drive.google.com/file/d/1bEAZo4PhiArJEVmRNc6N1qyZDgqctVl6/view?usp=sharing)
+- [Notificació 2](https://drive.google.com/file/d/1qHwMuufDFeJsC7v-NjA_Ba0OwPaJPjkn/view?usp=sharing)
+
+
+
