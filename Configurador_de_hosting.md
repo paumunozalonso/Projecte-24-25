@@ -1730,3 +1730,10 @@ for USUARI_DIR in $BASE_DIR/usuari_*; do
 done
 
 ```
+
+## Demos
+
+- [Registre d'usuari](https://drive.google.com/file/d/1ER_kAwEmlF16LKmT3dketCeT5dd9fw4z/view?usp=sharing)
+- [Creació de servei](https://drive.google.com/file/d/107lafItc5LmSjCw4ScSrgXAn21bQ3EIH/view?usp=sharing)
+- [Modificació de servei](https://drive.google.com/file/d/1podHJxQoKfWYxvAK-kHp0EunMccocSTA/view?usp=sharing)
+- [Backup de servei](https://drive.google.com/file/d/1nFuMVfy415XWikSy1OJW-8qa6MuoJd4-/view?usp=sharing)
