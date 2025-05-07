@@ -343,3 +343,44 @@ header("Location: panell.php");
 exit;
 ?>
 ```
+
+## `iniciar.php`
+
+```php
+
+<?php
+session_start();
+if (!isset($_SESSION['usuari_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$servei_id = $_GET['servei_id'] ?? '';
+$usuari_id = $_SESSION['usuari_id'];
+
+$base_path = "/var/www/containers/usuari_$usuari_id/$servei_id";
+$compose_path = "$base_path/docker-compose.yml";
+echo "Ruta que s'està comprovant: $base_path/docker-compose.yml<br>";
+if (file_exists($compose_path)) {
+    shell_exec("cd $base_path && docker compose up -d");
+
+    $conn = new mysqli("localhost", "pau", "Hola1234!", "projecte");
+
+    if ($conn->connect_error) {
+        die("Error de connexió: " . $conn->connect_error);
+    }
+
+    $stmt = $conn->prepare("UPDATE serveis SET estat = 'actiu' WHERE servei_id = ? AND usuari_id = ?");
+    $stmt->bind_param("si", $servei_id, $usuari_id);
+    $stmt->execute();
+    $stmt->close();
+    $conn->close();
+
+    header("Location: gestionar.php");
+    exit;
+
+} else {
+    die("El servei no existeix o falta el docker-compose.yml");
+}
+?>
+```
