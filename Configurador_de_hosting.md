@@ -1685,3 +1685,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </html>
 
 ```
+## `backup_serveis.sh`
+```php
+
+#!/bin/bash
+
+BASE_DIR="/var/www/containers"
+BACKUP_DIR="/var/backups/serveis"
+DATA=$(date +%F_%H-%M)
+
+DB_USER="pau"
+DB_PASS="Hola1234!"
+DB_NAME="projecte"
+
+mkdir -p $BACKUP_DIR
+
+# Recórrer tots els serveis
+for USUARI_DIR in $BASE_DIR/usuari_*; do
+  USUARI_ID=$(basename "$USUARI_DIR" | cut -d'_' -f2)
+
+  for SERVEI_DIR in $USUARI_DIR/servei_*; do
+    ID_SERVEI=$(basename "$SERVEI_DIR")
+
+    # Comprovem si aquest servei té backup activat
+    BACKUP_ACTIU=$(mysql -u"$DB_USER" -p"$DB_PASS" -D "$DB_NAME" -se "SELECT backup_diari FROM serveis WHERE servei_id='$ID_SERVEI' AND usuari_id=$USUARI_ID;" | xargs)
+
+    if [ "$BACKUP_ACTIU" = "1" ]; then
+      echo "Fent backup de $ID_SERVEI per a usuari $USUARI_ID..."
+
+      DB_NAME="db_$ID_SERVEI"
+      OUTDIR="$BACKUP_DIR/$ID_SERVEI/$DATA"
+      mkdir -p "$OUTDIR"
+
+      # Dump de base de dades
+      docker exec servei_${ID_SERVEI}_db-1 mysqldump -u user -ppass $DB_NAME > "$OUTDIR/db.sql" 2>/dev/null
+
+      # Còpia de fitxers web
+      cp -r "$SERVEI_DIR/app_data" "$OUTDIR/"
+      echo "Backup completat: $OUTDIR"
+    else
+      echo "altant $ID_SERVEI (backup no actiu)"
+    fi
+  done
+done
+
+```
