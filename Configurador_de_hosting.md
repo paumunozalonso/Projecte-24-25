@@ -241,4 +241,105 @@ exit;
 ?>
 ```
 
+## `guardar_servei.php`
 
+```php
+
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+session_start();
+if (!isset($_SESSION['usuari_id'])) {
+  header("Location: login.php");
+  exit;
+}
+
+$conn = new mysqli("localhost", "pau", "Hola1234!", "projecte");
+if ($conn->connect_error) {
+  die("Error de connexió: " . $conn->connect_error);
+}
+
+$usuari_id      = $_SESSION['usuari_id'];
+$nom_servei     = $_POST['nom_servei'];
+$plataforma     = $_POST['plataforma'];
+$versio_mysql   = $_POST['versio_mysql'];
+$vcpu           = $_POST['vcpu'];
+$ram            = $_POST['ram'];
+$ssd            = $_POST['ssd'];
+$xarxa          = $_POST['xarxa'];
+$estat          = "aturat";
+$backup_diari   = isset($_POST['backup_diari']) ? 1 : 0;
+
+$servei_id      = uniqid("servei_");
+$port_http      = rand(8000, 8999);
+
+// Càlcul de preu
+$preu_cpu     = $vcpu * 2;
+$preu_ram     = $ram * 1.5;
+$preu_ssd     = $ssd * 0.1;
+
+switch ($xarxa) {
+  case "100":  $preu_xarxa = 1; break;
+  case "500":  $preu_xarxa = 3; break;
+  case "1000": $preu_xarxa = 5; break;
+  default:     $preu_xarxa = 0;
+}
+
+$preu_backup = $backup_diari ? 1.5 : 0;
+$preu_total = $preu_cpu + $preu_ram + $preu_ssd + $preu_xarxa + $preu_backup;
+
+//Inserir a la base de dades amb el preu
+$stmt = $conn->prepare("INSERT INTO serveis
+  (servei_id, usuari_id, nom_servei, plataforma, vcpu, ram, ssd, versio_mysql, xarxa, estat, port_http, backup_diari, preu_total)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sissiiissssii", $servei_id, $usuari_id, $nom_servei, $plataforma, $vcpu, $ram, $ssd, $versio_mysql, $xarxa, $estat, $port_http, $backup_diari, $preu_total);
+$stmt->execute();
+$stmt->close();
+
+// Crear carpetes
+$base_path = "/var/www/containers/usuari_$usuari_id/$servei_id";
+mkdir("$base_path/app_data", 0777, true);
+mkdir("$base_path/db_data", 0777, true);
+
+// Generar docker-compose.yml
+$compose = <<<YML
+version: '3.8'
+services:
+  app:
+    image: $plataforma
+    container_name: ${servei_id}_app
+    ports:
+      - "$port_http:80"
+    deploy:
+      resources:
+        limits:
+          cpus: "$vcpu"
+          memory: "${ram}g"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: db_$servei_id
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    volumes:
+      - $base_path/app_data:/var/www/html
+
+  db:
+    image: mysql:$versio_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: db_$servei_id
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - $base_path/db_data:/var/lib/mysql
+YML;
+
+file_put_contents("$base_path/docker-compose.yml", $compose);
+
+// Tornar al panell
+header("Location: panell.php");
+exit;
+?>
+```
