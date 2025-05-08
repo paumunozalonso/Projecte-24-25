@@ -90,3 +90,58 @@ networks:
       config:
         - subnet: 192.168.50.0/24
 ```
+# Migració del projecte multi-contenidor de Compose al clúster Swarm
+
+```bash
+docker stack deploy -c docker-compose.yml stack_docker
+
+
+services:
+  web:
+    image: php:8.2-apache-buster
+    volumes:
+      - ./www:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - lamp-network
+    command: >
+      /bin/bash -c "apt-get update && docker-php-ext-install mysqli pdo_mysql && docker-php-ext-enable mysqli pdo_mysql && apache2-foreground"
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: hola
+      MYSQL_DATABASE: projecte
+      MYSQL_USER: paumunoz
+      MYSQL_PASSWORD: hola
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - lamp-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: hola
+    depends_on:
+      - db
+    networks:
+      - lamp-network
+
+volumes:
+  db_data:
+  www_data:
+
+networks:
+  lamp-network:
+    driver: overlay
+
+
+docker stack deploy -c docker-compose.yml stack_docker
+```
