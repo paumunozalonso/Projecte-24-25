@@ -141,7 +141,84 @@ volumes:
 networks:
   lamp-network:
     driver: overlay
+```
+
+## Creació del Deployment per a cada servei
 
 
-docker stack deploy -c docker-compose.yml stack_docker
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.35.0 (9532cef3)
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: web
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.35.0 (9532cef3)
+      labels:
+        io.kompose.service: web
+    spec:
+      containers:
+        - args:
+            - /bin/bash
+            - -c
+            - apt-get update && docker-php-ext-install mysqli pdo_mysql && docker-php-ext-enable mysqli pdo_mysql && apache2-foreground
+          image: php:8.2-apache-buster
+          name: apache_php
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: web-cm0
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: web-cm0
+          name: web-cm0
+
+```
+## Fitxer Service per exposar el Deployment
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  type: NodePort
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 80
+      nodePort: 32080
+  selector:
+    io.kompose.service: web
+```
+
+## Instal·lació de Minikube
+
+```bash
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+minikube start --driver=docker
 ```
